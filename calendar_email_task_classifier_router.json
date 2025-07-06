@@ -1,0 +1,183 @@
+{
+  "name": "Classifier Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        60,
+        60
+      ],
+      "id": "51e0332c-266c-4228-81df-29f5483624a7",
+      "name": "chat",
+      "webhookId": "0a2fcf4f-c8de-4a99-80ab-d425a3d3b09e"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        300,
+        280
+      ],
+      "id": "c14377ac-32fa-4de8-a111-91182400a05c",
+      "name": "gpt4.1-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "u6spHNm0mJX7b1oz",
+          "name": "connection1-full-agents-guide"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a personal assistant.\n\nYou are an expert at determining which tool is best needed for the job and then pass user queries to those specific tools.\n\nThe two tools you will have access to are:\n\ngoogle_calendar_agent\n\nand\n\nemailing_agent\n\nThe user will be giving commands or asking questions about either their email or google calendar. Your job is to pass two variables to each of these tools. The user query and a description of the task needing to be completed.\n\nYou are to create the description to clearly define what the user needs so the other agents can interpret the user better.\n\nI want these two systems to work with one another.\n\nFor example, if the user creates an event and wants to email someone about it, then you should coordinate the communication between the two agents."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        280,
+        60
+      ],
+      "id": "b8cef1d7-7d21-4618-8c3e-14ce1706d155",
+      "name": "Classifier"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool in order to do anything regarding Google Calendar. ",
+        "workflowId": {
+          "__rl": true,
+          "value": "gtVYPE0U6pWst3tL",
+          "mode": "list",
+          "cachedResultName": "Agents 101 — calendar_agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userQuery": "={{ $json.chatInput }}",
+            "jobDescription": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('jobDescription', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "userQuery",
+              "displayName": "userQuery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "jobDescription",
+              "displayName": "jobDescription",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        280
+      ],
+      "id": "fd07685d-25d2-4397-a36b-589a55d5b56b",
+      "name": "google_calendar_agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        280
+      ],
+      "id": "87081013-167e-4c0e-8eca-a853efd4ef14",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "chat": {
+      "main": [
+        [
+          {
+            "node": "Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt4.1-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "google_calendar_agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classifier",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Classifier",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifier": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "804ec5d3-33fb-4782-b202-f9b3711d3ad2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2732dae15d7364e1faae0e1bed456c5e45438575b8b5ee70ae3c91118e6956d3"
+  },
+  "id": "bFUXR6nvbkHw2Rcw",
+  "tags": []
+}
